@@ -1,6 +1,6 @@
 ---
 name: persona-tester
-description: Evaluate ideas and strategies from multiple stakeholder perspectives - CEO, customer, competitor, regulator - to uncover blind spots and build consensus.
+description: Evaluates strategies and ideas from multiple stakeholder perspectives to uncover blind spots. Use when someone wants to see how different personas react to a plan, test an idea against CEO/customer/competitor/regulator viewpoints, find consensus gaps, or simulate a stakeholder review. Runs independent evaluations from 5+ built-in personas (CEO, customer, competitor, regulator, end-user), then cross-examines conclusions and produces a consensus map.
 license: Apache-2.0
 metadata:
   author: ghostlabs

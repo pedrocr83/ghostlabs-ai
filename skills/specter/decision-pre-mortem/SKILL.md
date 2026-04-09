@@ -1,6 +1,6 @@
 ---
 name: decision-pre-mortem
-description: Structured pre-mortem framework for business decisions - imagine the decision failed, work backwards to identify why, and build prevention plans.
+description: Runs structured pre-mortem analysis on business decisions by imagining future failure and working backwards. Use when someone wants to de-risk a decision, anticipate what could go wrong, identify failure modes, stress-test a launch plan, or evaluate project risks before committing. Generates failure scenarios across execution, assumption, external, people, and timing dimensions, then scores by probability, impact, and detectability to produce prevention plans.
 license: Apache-2.0
 metadata:
   author: ghostlabs

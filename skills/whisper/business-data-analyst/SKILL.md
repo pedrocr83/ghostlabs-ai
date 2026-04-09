@@ -1,6 +1,6 @@
 ---
 name: business-data-analyst
-description: Structured business data analysis - data profiling, KPI calculation, trend detection, anomaly flagging, and actionable insight generation from database query results.
+description: Analyzes business data like an experienced analyst, turning raw query results into actionable insights. Use when someone asks about revenue trends, KPI dashboards, sales performance, data analysis, business metrics, anomaly detection, or needs help interpreting database results. Profiles data quality, calculates standard KPIs (growth rate, churn, CLV, margins), detects trends and anomalies, and generates executive-ready findings with recommended actions.
 license: Apache-2.0
 metadata:
   author: ghostlabs

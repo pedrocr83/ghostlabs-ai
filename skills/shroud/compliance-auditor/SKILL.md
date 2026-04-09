@@ -1,6 +1,6 @@
 ---
 name: compliance-auditor
-description: Framework-specific compliance assessment for SOC 2, GDPR, ISO 27001, and NIST CSF - generates gap analysis, control narratives, and evidence requirements.
+description: Assesses organizational compliance against SOC 2, GDPR, ISO 27001, and NIST CSF frameworks and generates audit-ready documentation. Use when someone needs a compliance audit, gap analysis, control narratives, evidence requirements, security questionnaire help, or framework mapping. Evaluates controls across all framework categories, produces gap analysis tables, generates audit-ready narratives, and lists required evidence per control.
 license: Apache-2.0
 metadata:
   author: ghostlabs

@@ -1,6 +1,6 @@
 ---
 name: domain-security-scanner
-description: Comprehensive domain security assessment - DNS configuration, SSL certificates, SPF/DKIM/DMARC email security, exposed ports, and known breach detection.
+description: Performs comprehensive domain security assessments covering DNS, SSL/TLS, email authentication, and breach exposure. Use when someone wants to scan a domain, check SPF/DKIM/DMARC, audit SSL certificates, find exposed ports, detect security misconfigurations, or assess website security posture. Produces graded findings (A-F) mapped to CIS Controls and NIST CSF with prioritized remediation steps.
 license: Apache-2.0
 metadata:
   author: ghostlabs

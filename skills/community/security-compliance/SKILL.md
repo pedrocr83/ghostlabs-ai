@@ -1,6 +1,6 @@
 ---
 name: security-compliance
-description: Comprehensive security compliance framework mappings - NIST CSF (5 functions, 23 categories), SOC 2, CIS Controls (18 controls, 3 implementation groups), ISO 27001, PCI DSS, HIPAA with incident response playbooks.
+description: Provides comprehensive security compliance framework reference mappings across NIST CSF, SOC 2, CIS Controls v8, ISO 27001, PCI DSS, and HIPAA. Use when someone needs to map security findings to frameworks, build incident response playbooks, understand CIS implementation groups, reference NIST CSF categories, or plan compliance remediation. Includes full NIST CSF subcategory listings, CIS Controls v8 with IG1-IG3 tiers, and incident response playbooks for P0-P3 severity levels.
 license: Apache-2.0
 metadata:
   author: community

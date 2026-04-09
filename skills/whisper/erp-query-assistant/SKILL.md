@@ -1,6 +1,6 @@
 ---
 name: erp-query-assistant
-description: Generate safe read-only SQL queries for ERP databases with safety patterns - SELECT-only validation, row limits, timeout protection, and retry logic with alternative joins.
+description: Generates safe, read-only SQL queries for ERP and business databases with built-in safety guardrails. Use when someone needs to query an ERP system, write SQL against business data, access invoicing or inventory tables, or build reports from database queries. Enforces SELECT-only, applies row limits and timeout protection, handles Portuguese ERP column naming conventions, and includes retry strategies with alternative joins.
 license: Apache-2.0
 metadata:
   author: ghostlabs

@@ -1,6 +1,6 @@
 ---
 name: adversarial-strategy-test
-description: Guide structured adversarial testing of business strategies through a 5-step framework - extract claims, generate alternatives, critique, red-team, and synthesize findings.
+description: Runs structured adversarial testing on business strategies, plans, and proposals. Use when someone wants to stress-test a strategy, find weaknesses in a plan, play devil's advocate, validate a business decision, or run a pre-mortem. Extracts testable claims, generates competing alternatives, identifies hidden assumptions, runs red-team attacks on single points of failure, and synthesizes findings into a verdict with kill conditions.
 license: Apache-2.0
 metadata:
   author: ghostlabs

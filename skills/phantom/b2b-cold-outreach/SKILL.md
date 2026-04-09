@@ -1,6 +1,6 @@
 ---
 name: b2b-cold-outreach
-description: B2B cold email copywriting using AIDA, PAS, and BAB frameworks - personalized subject lines, multi-step sequences, follow-up templates, and deliverability best practices.
+description: Writes personalized B2B cold outreach emails using proven copywriting frameworks (AIDA, PAS, BAB). Use when someone needs cold email templates, outreach sequences, sales emails, follow-up copy, subject line ideas, or prospecting messages. Generates multi-step email sequences with personalization tiers, deliverability best practices, and open-rate optimization for SDR and sales teams.
 license: Apache-2.0
 metadata:
   author: ghostlabs

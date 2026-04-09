@@ -1,6 +1,6 @@
 ---
 name: primavera-specialist
-description: Deep expertise in Primavera PHC ERP system - Portuguese table relationships, business logic, IVA tax calculations, SAFT-PT compliance, and common reporting queries.
+description: Provides deep expertise in the Primavera PHC ERP system used by Portuguese businesses. Use when someone asks about Primavera tables, PHC database queries, Portuguese invoicing (faturacao), IVA tax calculations, SAFT-PT compliance, or needs help navigating Primavera's table structure (Ft, Fi, Cl, St, Sa). Covers table relationships, IVA rates by region, document types (FT/FR/NC/ND), and common business reporting queries.
 license: Apache-2.0
 metadata:
   author: ghostlabs

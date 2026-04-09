@@ -1,6 +1,6 @@
 ---
 name: icp-builder
-description: Build Ideal Customer Profiles through structured market analysis - firmographic criteria, technographic signals, pain point mapping, and scoring rubric generation.
+description: Builds structured Ideal Customer Profiles from natural language descriptions of target markets. Use when someone mentions ICP, ideal customer, target market, buyer persona, lead criteria, or prospect qualification. Extracts firmographic criteria, technographic signals, pain points, decision-maker maps, and generates a weighted scoring rubric for lead prioritization.
 license: Apache-2.0
 metadata:
   author: ghostlabs

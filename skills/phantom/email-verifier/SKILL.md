@@ -1,6 +1,6 @@
 ---
 name: email-verifier
-description: 10-layer email verification pipeline methodology - syntax validation, DNS resolution, disposable detection, role-based filtering, pattern analysis, and deliverability scoring.
+description: Verifies email addresses through a 10-layer pipeline covering syntax, DNS, disposable detection, and deliverability scoring. Use when someone needs to validate emails, check email deliverability, detect disposable addresses, find bounce risks, or verify contacts before outreach. Covers RFC validation, MX lookup, catch-all detection, role-based filtering, pattern analysis, and SMTP handshake methodology.
 license: Apache-2.0
 metadata:
   author: ghostlabs

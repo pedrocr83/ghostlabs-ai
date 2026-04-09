@@ -1,6 +1,6 @@
 ---
 name: sql-optimization-patterns
-description: SQL query optimization patterns - index hints, join strategies, CTE vs subquery decisions, pagination patterns, and EXPLAIN plan interpretation for PostgreSQL.
+description: Optimizes PostgreSQL queries using proven patterns for indexing, joins, CTEs, and pagination. Use when someone has a slow query, needs to read an EXPLAIN plan, wants index strategy advice, is choosing between CTE and subquery, or needs keyset pagination. Covers B-tree/GIN/GiST index selection, join optimization (nested loop vs hash vs merge), CTE vs subquery trade-offs, offset vs keyset pagination, and common SQL anti-patterns with fixes.
 license: Apache-2.0
 metadata:
   author: community

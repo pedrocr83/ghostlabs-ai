@@ -1,6 +1,6 @@
 ---
 name: attack-tree-construction
-description: Formal attack tree methodology for adversarial analysis - goal decomposition, AND/OR gates, probability assignment, cost-benefit calculation, and risk prioritization.
+description: Constructs formal attack trees for systematic adversarial and risk analysis using AND/OR gate decomposition. Use when someone needs to model attack paths, decompose threats, build threat trees, analyze security attack vectors, or do structured risk assessment for competitive strategy. Assigns probability, cost, difficulty, and detectability to leaf nodes, calculates composite scores, and identifies the critical path an attacker or competitor would take.
 license: Apache-2.0
 metadata:
   author: community

@@ -1,6 +1,6 @@
 ---
 name: data-storytelling
-description: Convert data analysis findings into compelling narratives - executive summary structure, insight extraction, actionable recommendation formatting, and audience-appropriate presentation.
+description: Transforms raw data analysis into clear, compelling narratives that drive business action. Use when someone needs to present data findings, write an executive summary, build a data report, format KPIs for leadership, or turn numbers into a story. Applies the Context-Tension-Resolution arc, structures insights by business impact, formats numbers for maximum clarity, and adapts presentation for executives, managers, or technical audiences.
 license: Apache-2.0
 metadata:
   author: community

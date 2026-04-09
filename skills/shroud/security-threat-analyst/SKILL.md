@@ -1,6 +1,6 @@
 ---
 name: security-threat-analyst
-description: Guide 6-node security analysis - signal collection, threat correlation, risk scoring, alert routing, remediation planning, and reporting using NIST CSF and MITRE ATT&CK frameworks.
+description: Analyzes security signals and correlates threats like a SOC analyst using a 6-node pipeline. Use when someone needs threat intelligence, security signal analysis, risk scoring, incident triage, breach assessment, or vulnerability correlation. Collects signals from breach databases, network scans, and DNS/SSL checks, then cross-references them to identify compound threats with NIST CSF and MITRE ATT&CK mapping.
 license: Apache-2.0
 metadata:
   author: ghostlabs
