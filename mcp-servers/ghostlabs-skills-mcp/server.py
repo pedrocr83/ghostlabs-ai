@@ -15,6 +15,36 @@ mcp = FastMCP("ghostlabs-skills")
 
 SKILLS_API_URL = os.getenv("SKILLS_API_URL", "http://ghostlabs-backend:8000/api")
 
+HEADERS = {}
+
+API_URL = SKILLS_API_URL
+
+
+async def _safe_request(method: str, url: str, **kwargs) -> dict:
+    """Make an HTTP request with structured error handling."""
+    try:
+        async with httpx.AsyncClient(timeout=kwargs.pop("timeout", 30), headers=HEADERS) as client:
+            resp = await getattr(client, method)(url, **kwargs)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.TimeoutException:
+        return {"error": "request_timeout", "message": f"Request to {url} timed out"}
+    except httpx.HTTPStatusError as e:
+        return {"error": "http_error", "message": str(e), "status_code": e.response.status_code}
+    except Exception as e:
+        return {"error": "connection_error", "message": str(e)}
+
+
+@mcp.tool()
+async def health_check() -> dict:
+    """Check if the GhostLabs service is available and responding."""
+    try:
+        async with httpx.AsyncClient(timeout=5, headers=HEADERS) as client:
+            resp = await client.get(f"{API_URL.rstrip('/').rsplit('/api', 1)[0]}/health/")
+            return {"status": "healthy" if resp.status_code == 200 else "degraded", "code": resp.status_code}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
 
 @mcp.tool()
 async def find_skills(query: str, product: str = "", max_results: int = 3) -> dict:
@@ -28,13 +58,11 @@ async def find_skills(query: str, product: str = "", max_results: int = 3) -> di
         product: Filter by product (specter, whisper, shroud, phantom). Empty for all.
         max_results: Maximum number of results (1-10).
     """
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.post(
-            f"{SKILLS_API_URL}/skills/test_match/",
-            json={"query": query, "product": product or "shared", "max_results": max_results},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SKILLS_API_URL}/skills/test_match/",
+        json={"query": query, "product": product or "shared", "max_results": max_results},
+    )
 
 
 @mcp.tool()
@@ -47,17 +75,16 @@ async def get_skill(skill_id: str) -> dict:
     Args:
         skill_id: The UUID of the skill (from find_skills results).
     """
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.get(f"{SKILLS_API_URL}/skills/{skill_id}/")
-        resp.raise_for_status()
-        data = resp.json()
-        return {
-            "name": data["name"],
-            "product": data["product"],
-            "description": data["description"],
-            "instructions": data["instructions"],
-            "allowed_tools": data["allowed_tools"],
-        }
+    data = await _safe_request("get", f"{SKILLS_API_URL}/skills/{skill_id}/")
+    if "error" in data:
+        return data
+    return {
+        "name": data["name"],
+        "product": data["product"],
+        "description": data["description"],
+        "instructions": data["instructions"],
+        "allowed_tools": data["allowed_tools"],
+    }
 
 
 @mcp.tool()
@@ -67,10 +94,7 @@ async def get_skill_resources(skill_id: str) -> list:
     Args:
         skill_id: The UUID of the skill.
     """
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.get(f"{SKILLS_API_URL}/skills/{skill_id}/resources/")
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request("get", f"{SKILLS_API_URL}/skills/{skill_id}/resources/")
 
 
 @mcp.tool()
@@ -87,10 +111,7 @@ async def list_skills(product: str = "", source: str = "") -> list:
     if source:
         params["source"] = source
 
-    async with httpx.AsyncClient(timeout=30) as client:
-        resp = await client.get(f"{SKILLS_API_URL}/skills/", params=params)
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request("get", f"{SKILLS_API_URL}/skills/", params=params)
 
 
 if __name__ == "__main__":

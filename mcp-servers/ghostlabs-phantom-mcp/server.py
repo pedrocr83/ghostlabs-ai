@@ -18,6 +18,34 @@ PHANTOM_API_KEY = os.getenv("PHANTOM_API_KEY", "")
 
 HEADERS = {"Authorization": f"Bearer {PHANTOM_API_KEY}"} if PHANTOM_API_KEY else {}
 
+API_URL = PHANTOM_API_URL
+
+
+async def _safe_request(method: str, url: str, **kwargs) -> dict:
+    """Make an HTTP request with structured error handling."""
+    try:
+        async with httpx.AsyncClient(timeout=kwargs.pop("timeout", 30), headers=HEADERS) as client:
+            resp = await getattr(client, method)(url, **kwargs)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.TimeoutException:
+        return {"error": "request_timeout", "message": f"Request to {url} timed out"}
+    except httpx.HTTPStatusError as e:
+        return {"error": "http_error", "message": str(e), "status_code": e.response.status_code}
+    except Exception as e:
+        return {"error": "connection_error", "message": str(e)}
+
+
+@mcp.tool()
+async def health_check() -> dict:
+    """Check if the GhostLabs service is available and responding."""
+    try:
+        async with httpx.AsyncClient(timeout=5, headers=HEADERS) as client:
+            resp = await client.get(f"{API_URL.rstrip('/').rsplit('/api', 1)[0]}/health/")
+            return {"status": "healthy" if resp.status_code == 200 else "degraded", "code": resp.status_code}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
 
 @mcp.tool()
 async def search_leads(query: str, limit: int = 10) -> dict:
@@ -27,13 +55,11 @@ async def search_leads(query: str, limit: int = 10) -> dict:
         query: Natural language search query (e.g., "SaaS companies in fintech").
         limit: Maximum number of results (1-50).
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(
-            f"{PHANTOM_API_URL}/leads/prospects/",
-            params={"search": query, "limit": min(limit, 50)},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "get",
+        f"{PHANTOM_API_URL}/leads/prospects/",
+        params={"search": query, "limit": min(limit, 50)},
+    )
 
 
 @mcp.tool()
@@ -45,10 +71,7 @@ async def get_lead_details(contact_id: str) -> dict:
     Args:
         contact_id: The UUID of the contact.
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(f"{PHANTOM_API_URL}/leads/contacts/{contact_id}/")
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request("get", f"{PHANTOM_API_URL}/leads/contacts/{contact_id}/")
 
 
 @mcp.tool()
@@ -60,13 +83,12 @@ async def verify_email(email: str) -> dict:
     Args:
         email: The email address to verify.
     """
-    async with httpx.AsyncClient(timeout=60, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{PHANTOM_API_URL}/leads/verify-email/",
-            json={"email": email},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{PHANTOM_API_URL}/leads/verify-email/",
+        json={"email": email},
+        timeout=60,
+    )
 
 
 @mcp.tool()
@@ -78,13 +100,11 @@ async def check_domain_email_pattern(domain: str) -> dict:
     Args:
         domain: Company domain to check (e.g., "acme.com").
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(
-            f"{PHANTOM_API_URL}/leads/email-patterns/",
-            params={"domain": domain},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "get",
+        f"{PHANTOM_API_URL}/leads/email-patterns/",
+        params={"domain": domain},
+    )
 
 
 @mcp.tool()
@@ -99,13 +119,11 @@ async def create_campaign(query: str, icp_id: str = "") -> dict:
     if icp_id:
         payload["icp_id"] = icp_id
 
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{PHANTOM_API_URL}/leads/campaigns/",
-            json=payload,
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{PHANTOM_API_URL}/leads/campaigns/",
+        json=payload,
+    )
 
 
 @mcp.tool()
@@ -115,10 +133,7 @@ async def get_campaign_status(campaign_id: str) -> dict:
     Args:
         campaign_id: The UUID of the campaign.
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(f"{PHANTOM_API_URL}/leads/campaigns/{campaign_id}/")
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request("get", f"{PHANTOM_API_URL}/leads/campaigns/{campaign_id}/")
 
 
 if __name__ == "__main__":

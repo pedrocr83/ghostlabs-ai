@@ -18,6 +18,34 @@ SPECTER_API_KEY = os.getenv("SPECTER_API_KEY", "")
 
 HEADERS = {"Authorization": f"Bearer {SPECTER_API_KEY}"} if SPECTER_API_KEY else {}
 
+API_URL = SPECTER_API_URL
+
+
+async def _safe_request(method: str, url: str, **kwargs) -> dict:
+    """Make an HTTP request with structured error handling."""
+    try:
+        async with httpx.AsyncClient(timeout=kwargs.pop("timeout", 30), headers=HEADERS) as client:
+            resp = await getattr(client, method)(url, **kwargs)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.TimeoutException:
+        return {"error": "request_timeout", "message": f"Request to {url} timed out"}
+    except httpx.HTTPStatusError as e:
+        return {"error": "http_error", "message": str(e), "status_code": e.response.status_code}
+    except Exception as e:
+        return {"error": "connection_error", "message": str(e)}
+
+
+@mcp.tool()
+async def health_check() -> dict:
+    """Check if the GhostLabs service is available and responding."""
+    try:
+        async with httpx.AsyncClient(timeout=5, headers=HEADERS) as client:
+            resp = await client.get(f"{API_URL.rstrip('/').rsplit('/api', 1)[0]}/health/")
+            return {"status": "healthy" if resp.status_code == 200 else "degraded", "code": resp.status_code}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
 
 @mcp.tool()
 async def run_adversarial_test(
@@ -37,13 +65,12 @@ async def run_adversarial_test(
     if template:
         payload["template"] = template
 
-    async with httpx.AsyncClient(timeout=300, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{SPECTER_API_URL}/tester/sessions/",
-            json=payload,
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SPECTER_API_URL}/tester/sessions/",
+        json=payload,
+        timeout=300,
+    )
 
 
 @mcp.tool()
@@ -55,10 +82,7 @@ async def get_session_results(session_id: str) -> dict:
     Args:
         session_id: The UUID of the analysis session.
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(f"{SPECTER_API_URL}/tester/sessions/{session_id}/")
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request("get", f"{SPECTER_API_URL}/tester/sessions/{session_id}/")
 
 
 @mcp.tool()
@@ -68,10 +92,7 @@ async def list_templates() -> list:
     Templates provide structured frameworks for specific analysis types:
     Product Launch, Investment Thesis, Competitive Response, etc.
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(f"{SPECTER_API_URL}/tester/templates/")
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request("get", f"{SPECTER_API_URL}/tester/templates/")
 
 
 @mcp.tool()
@@ -84,13 +105,12 @@ async def extract_claims(text: str) -> dict:
     Args:
         text: The strategy text or document content to analyze.
     """
-    async with httpx.AsyncClient(timeout=120, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{SPECTER_API_URL}/tester/extract-claims/",
-            json={"text": text},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SPECTER_API_URL}/tester/extract-claims/",
+        json={"text": text},
+        timeout=120,
+    )
 
 
 @mcp.tool()
@@ -106,16 +126,15 @@ async def red_team_evaluate(
         strategy_text: The strategy to attack.
         aggressiveness: Attack level — balanced or aggressive.
     """
-    async with httpx.AsyncClient(timeout=120, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{SPECTER_API_URL}/tester/red-team/",
-            json={
-                "text": strategy_text,
-                "aggressiveness": aggressiveness,
-            },
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SPECTER_API_URL}/tester/red-team/",
+        json={
+            "text": strategy_text,
+            "aggressiveness": aggressiveness,
+        },
+        timeout=120,
+    )
 
 
 if __name__ == "__main__":

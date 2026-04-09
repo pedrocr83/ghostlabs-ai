@@ -18,6 +18,34 @@ WHISPER_API_KEY = os.getenv("WHISPER_API_KEY", "")
 
 HEADERS = {"Authorization": f"Bearer {WHISPER_API_KEY}"} if WHISPER_API_KEY else {}
 
+API_URL = WHISPER_API_URL
+
+
+async def _safe_request(method: str, url: str, **kwargs) -> dict:
+    """Make an HTTP request with structured error handling."""
+    try:
+        async with httpx.AsyncClient(timeout=kwargs.pop("timeout", 30), headers=HEADERS) as client:
+            resp = await getattr(client, method)(url, **kwargs)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.TimeoutException:
+        return {"error": "request_timeout", "message": f"Request to {url} timed out"}
+    except httpx.HTTPStatusError as e:
+        return {"error": "http_error", "message": str(e), "status_code": e.response.status_code}
+    except Exception as e:
+        return {"error": "connection_error", "message": str(e)}
+
+
+@mcp.tool()
+async def health_check() -> dict:
+    """Check if the GhostLabs service is available and responding."""
+    try:
+        async with httpx.AsyncClient(timeout=5, headers=HEADERS) as client:
+            resp = await client.get(f"{API_URL.rstrip('/').rsplit('/api', 1)[0]}/health/")
+            return {"status": "healthy" if resp.status_code == 200 else "degraded", "code": resp.status_code}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
 
 @mcp.tool()
 async def query_business_data(question: str, company_id: str = "") -> dict:
@@ -34,13 +62,12 @@ async def query_business_data(question: str, company_id: str = "") -> dict:
     if company_id:
         payload["company_id"] = company_id
 
-    async with httpx.AsyncClient(timeout=120, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{WHISPER_API_URL}/chat/query/",
-            json=payload,
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{WHISPER_API_URL}/chat/query/",
+        json=payload,
+        timeout=120,
+    )
 
 
 @mcp.tool()
@@ -55,13 +82,12 @@ async def search_documents(query: str, file_types: str = "") -> dict:
     if file_types:
         params["file_types"] = file_types
 
-    async with httpx.AsyncClient(timeout=60, headers=HEADERS) as client:
-        resp = await client.get(
-            f"{WHISPER_API_URL}/documents/search/",
-            params=params,
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "get",
+        f"{WHISPER_API_URL}/documents/search/",
+        params=params,
+        timeout=60,
+    )
 
 
 @mcp.tool()
@@ -72,13 +98,11 @@ async def get_conversation_history(conversation_id: str, limit: int = 20) -> dic
         conversation_id: The UUID of the conversation.
         limit: Maximum number of messages to return.
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(
-            f"{WHISPER_API_URL}/chat/conversations/{conversation_id}/messages/",
-            params={"limit": limit},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "get",
+        f"{WHISPER_API_URL}/chat/conversations/{conversation_id}/messages/",
+        params={"limit": limit},
+    )
 
 
 @mcp.tool()
@@ -89,13 +113,12 @@ async def generate_report(prompt: str, output_format: str = "markdown") -> dict:
         prompt: Description of the report to generate (e.g., "Monthly sales summary").
         output_format: Output format — markdown, json, pdf, or xlsx.
     """
-    async with httpx.AsyncClient(timeout=120, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{WHISPER_API_URL}/reports/generate/",
-            json={"prompt": prompt, "format": output_format},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{WHISPER_API_URL}/reports/generate/",
+        json={"prompt": prompt, "format": output_format},
+        timeout=120,
+    )
 
 
 @mcp.tool()
@@ -108,13 +131,12 @@ async def create_chart(data_query: str, chart_type: str = "auto") -> dict:
         data_query: Natural language description of the data to visualize.
         chart_type: Chart type — auto, line, bar, pie, area, scatter, or table.
     """
-    async with httpx.AsyncClient(timeout=120, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{WHISPER_API_URL}/visualizations/create/",
-            json={"query": data_query, "chart_type": chart_type},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{WHISPER_API_URL}/visualizations/create/",
+        json={"query": data_query, "chart_type": chart_type},
+        timeout=120,
+    )
 
 
 if __name__ == "__main__":

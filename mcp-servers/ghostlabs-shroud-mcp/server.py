@@ -18,6 +18,34 @@ SHROUD_API_KEY = os.getenv("SHROUD_API_KEY", "")
 
 HEADERS = {"Authorization": f"Bearer {SHROUD_API_KEY}"} if SHROUD_API_KEY else {}
 
+API_URL = SHROUD_API_URL
+
+
+async def _safe_request(method: str, url: str, **kwargs) -> dict:
+    """Make an HTTP request with structured error handling."""
+    try:
+        async with httpx.AsyncClient(timeout=kwargs.pop("timeout", 30), headers=HEADERS) as client:
+            resp = await getattr(client, method)(url, **kwargs)
+            resp.raise_for_status()
+            return resp.json()
+    except httpx.TimeoutException:
+        return {"error": "request_timeout", "message": f"Request to {url} timed out"}
+    except httpx.HTTPStatusError as e:
+        return {"error": "http_error", "message": str(e), "status_code": e.response.status_code}
+    except Exception as e:
+        return {"error": "connection_error", "message": str(e)}
+
+
+@mcp.tool()
+async def health_check() -> dict:
+    """Check if the GhostLabs service is available and responding."""
+    try:
+        async with httpx.AsyncClient(timeout=5, headers=HEADERS) as client:
+            resp = await client.get(f"{API_URL.rstrip('/').rsplit('/api', 1)[0]}/health/")
+            return {"status": "healthy" if resp.status_code == 200 else "degraded", "code": resp.status_code}
+    except Exception as e:
+        return {"status": "unhealthy", "error": str(e)}
+
 
 @mcp.tool()
 async def check_domain_reputation(domain: str) -> dict:
@@ -28,13 +56,12 @@ async def check_domain_reputation(domain: str) -> dict:
     Args:
         domain: Domain to check (e.g., "example.com").
     """
-    async with httpx.AsyncClient(timeout=60, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{SHROUD_API_URL}/domains/check/",
-            json={"domain": domain},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SHROUD_API_URL}/domains/check/",
+        json={"domain": domain},
+        timeout=60,
+    )
 
 
 @mcp.tool()
@@ -47,13 +74,11 @@ async def scan_content_pii(text: str) -> dict:
     Args:
         text: Text to scan for PII.
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{SHROUD_API_URL}/compliance/scan-pii/",
-            json={"text": text},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SHROUD_API_URL}/compliance/scan-pii/",
+        json={"text": text},
+    )
 
 
 @mcp.tool()
@@ -65,12 +90,11 @@ async def get_security_score(domain: str) -> dict:
     Args:
         domain: Domain to score.
     """
-    async with httpx.AsyncClient(timeout=60, headers=HEADERS) as client:
-        resp = await client.get(
-            f"{SHROUD_API_URL}/domains/{domain}/score/",
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "get",
+        f"{SHROUD_API_URL}/domains/{domain}/score/",
+        timeout=60,
+    )
 
 
 @mcp.tool()
@@ -85,13 +109,11 @@ async def check_vulnerability(service: str, version: str = "") -> dict:
     if version:
         params["version"] = version
 
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(
-            f"{SHROUD_API_URL}/threats/cve/",
-            params=params,
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "get",
+        f"{SHROUD_API_URL}/threats/cve/",
+        params=params,
+    )
 
 
 @mcp.tool()
@@ -115,13 +137,11 @@ async def report_security_event(
     if details:
         payload["details"] = details
 
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{SHROUD_API_URL}/threats/events/",
-            json=payload,
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SHROUD_API_URL}/threats/events/",
+        json=payload,
+    )
 
 
 @mcp.tool()
@@ -131,13 +151,11 @@ async def get_compliance_status(framework: str = "nist_csf") -> dict:
     Args:
         framework: Compliance framework — nist_csf, soc2, gdpr, iso27001, cis.
     """
-    async with httpx.AsyncClient(timeout=30, headers=HEADERS) as client:
-        resp = await client.get(
-            f"{SHROUD_API_URL}/compliance/status/",
-            params={"framework": framework},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "get",
+        f"{SHROUD_API_URL}/compliance/status/",
+        params={"framework": framework},
+    )
 
 
 @mcp.tool()
@@ -150,13 +168,12 @@ async def generate_compliance_narrative(framework: str, scope: str = "") -> dict
         framework: Target framework (soc2, gdpr, iso27001).
         scope: Optional scope limitation (e.g., "access_control").
     """
-    async with httpx.AsyncClient(timeout=120, headers=HEADERS) as client:
-        resp = await client.post(
-            f"{SHROUD_API_URL}/compliance/narrative/",
-            json={"framework": framework, "scope": scope},
-        )
-        resp.raise_for_status()
-        return resp.json()
+    return await _safe_request(
+        "post",
+        f"{SHROUD_API_URL}/compliance/narrative/",
+        json={"framework": framework, "scope": scope},
+        timeout=120,
+    )
 
 
 if __name__ == "__main__":
