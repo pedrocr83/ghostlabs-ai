@@ -150,6 +150,46 @@ ghostlabs-ai/
 - No PII is collected, stored, or transmitted by any skill or MCP server in this repository
 - Scripts run in output-only mode — their code never enters the AI context window
 
+## Authentication
+
+MCP servers support OAuth 2.1 authentication (RFC 9728) with two modes:
+
+### Production: JWT via JWKS
+
+Configure your OAuth provider (Auth0, Okta, or self-hosted):
+
+```bash
+export OAUTH_ISSUER_URL=https://your-provider.com/
+export OAUTH_JWKS_URL=https://your-provider.com/.well-known/jwks.json
+export OAUTH_AUDIENCE=https://mcp.ghostlabs.ai
+```
+
+Tokens are validated against the provider's JWKS endpoint with RS256 signature verification, expiry checks, audience validation, and scope enforcement.
+
+### Development: Static API Keys
+
+For local development, use static API keys:
+
+```bash
+export MCP_API_KEYS=my-dev-key-1,my-dev-key-2
+```
+
+### No Auth (Open Mode)
+
+If neither `OAUTH_JWKS_URL` nor `MCP_API_KEYS` is set, servers run in open mode (no authentication). This is the default for local development.
+
+### Per-Server Scopes
+
+Each server requires specific OAuth scopes:
+
+| Server | Required Scope |
+|--------|---------------|
+| ghostlabs-phantom-mcp | `phantom:read` |
+| ghostlabs-whisper-mcp | `whisper:read` |
+| ghostlabs-specter-mcp | `specter:read` |
+| ghostlabs-shroud-mcp | `shroud:read` |
+| ghostlabs-skills-mcp | `skills:read` |
+
 ## Contributing
 
 We welcome community skills and improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
