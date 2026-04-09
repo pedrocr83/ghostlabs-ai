@@ -1,5 +1,7 @@
 # GhostLabs AI
 
+Open-source AI tools by [GhostLabs AI](https://ghostlabs.ai) — enterprise security, lead generation, strategy testing, and business intelligence.
+
 AI skills and MCP servers for security, lead generation, strategy testing, and business intelligence. Free tools for Claude Code, Codex, Cursor, and any MCP-compatible agent.
 
 ## What's Inside
@@ -27,17 +29,17 @@ Skills are knowledge packages that teach AI agents how to perform specialized ta
 | **Community** | `attack-tree-construction` | Systematic attack tree methodology with goal decomposition |
 | **Community** | `data-storytelling` | Convert data findings into compelling narrative |
 
-### MCP Servers (5 servers, 27 tools)
+### MCP Servers (5 servers, 32 tools)
 
 MCP servers give AI agents live access to GhostLabs product APIs. Connect them to Claude Code, Codex, or any MCP-compatible client.
 
 | Server | Tools | What it provides |
 |--------|-------|-----------------|
-| **ghostlabs-phantom-mcp** | 6 | Lead search, email verification, campaign management |
-| **ghostlabs-whisper-mcp** | 5 | Business data queries, document search, report generation |
-| **ghostlabs-specter-mcp** | 5 | Adversarial analysis, claim extraction, red-team evaluation |
-| **ghostlabs-shroud-mcp** | 7 | Domain reputation, PII scanning, CVE lookup, compliance status |
-| **ghostlabs-skills-mcp** | 4 | Semantic skill search, skill loading, resource access |
+| **ghostlabs-phantom-mcp** | 7 | Lead search, email verification, campaign management, health check |
+| **ghostlabs-whisper-mcp** | 6 | Business data queries, document search, report generation, health check |
+| **ghostlabs-specter-mcp** | 6 | Adversarial analysis, claim extraction, red-team evaluation, health check |
+| **ghostlabs-shroud-mcp** | 8 | Domain reputation, PII scanning, CVE lookup, compliance status, health check |
+| **ghostlabs-skills-mcp** | 5 | Semantic skill search, skill loading, resource access, health check |
 
 ## Quick Start
 
@@ -141,12 +143,19 @@ ghostlabs-ai/
 | **Shroud** | AI-native security & compliance platform | [shroud.ghostlabs.ai](https://shroud.ghostlabs.ai) |
 | **Haunt** | Autonomous optimization engine (ASI-Evolve) | [haunt.ghostlabs.ai](https://haunt.ghostlabs.ai) |
 
+## Security
+
+- All community skills are audited for prompt injection, credential harvesting, and unauthorized network access before activation
+- MCP servers validate all inputs and return structured errors instead of crashing on unexpected responses
+- No PII is collected, stored, or transmitted by any skill or MCP server in this repository
+- Scripts run in output-only mode — their code never enters the AI context window
+
 ## Contributing
 
-We welcome community skills. To contribute:
+We welcome community skills and improvements. See [CONTRIBUTING.md](CONTRIBUTING.md) for full guidelines.
 
 1. Fork this repo
-2. Create a skill following the [SKILL.md format](https://agentskills.io)
+2. Create a skill following the SKILL.md format
 3. Place it in the appropriate product directory (or `skills/community/`)
 4. Submit a PR
 
